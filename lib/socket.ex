@@ -9,22 +9,41 @@
 defmodule Socket do
   @type t :: Socket.Protocol.t
 
-  defexception Error, reason: nil do
+  defmodule Error do
     @type t :: Error.t
 
-    def message(Error[reason: reason]) do
+    defexception [:message]
+
+    def exception(reason) do
       cond do
         message = Socket.TCP.error(reason) ->
-          message
+          %Error{message: message}
 
         message = Socket.SSL.error(reason) ->
-          message
+          %Error{message: message}
 
         true ->
-          reason |> to_string
+          %Error{message: reason}
       end
     end
   end
+
+  # defexception Error, reason: nil do
+  #   @type t :: Error.t
+  #
+  #   def message(Error[reason: reason]) do
+  #     cond do
+  #       message = Socket.TCP.error(reason) ->
+  #         message
+  #
+  #       message = Socket.SSL.error(reason) ->
+  #         message
+  #
+  #       true ->
+  #         reason |> to_string
+  #     end
+  #   end
+  # end
 
   @doc ~S"""
   Create a socket connecting to somewhere using an URI.
